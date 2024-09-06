@@ -11,5 +11,5 @@ EOF
 
 # Trigger run_tests.sh in docker container from local.
 docker run --platform linux/amd64 -i vibrant-data-labs-py2mappr:latest < ~/test.sh
-
+# docker build --platform linux/amd64 -t vibrant-data-labs-py2mappr:latest . 
 # docker save vibrant-data-labs-py2mappr:latest > /Users/greg/turing/py2mappr/vibrant-data-labs-py2mappr.tar
