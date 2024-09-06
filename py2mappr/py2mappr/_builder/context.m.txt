@@ -1,0 +1,24 @@
+# CONTEXT FILES
+
+File Path: `<RELATIVE FILE PATH FROM REPO ROOT>`
+File Content: 
+```
+<FUL
+L FILE CONTENT GOES HERE>
+ ```
+---
+File Path: `<RELATIVE FILE PATH FROM REPO ROOT>`
+File Content: 
+```
+<FULL FILE CONTENT GOES HERE>
+```
+---
+{Repeat for all the context files that will help Gemini to write good code to accomplish the task}
+
+# FILE TO BE UPDATED
+
+File Path: ``
+File Content: 
+```
+<FULL FILE CONTENT GOES HERE>
+```

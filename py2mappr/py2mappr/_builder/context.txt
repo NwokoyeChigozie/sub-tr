@@ -1,0 +1,158 @@
+
+# FILE TO BE UPDATED
+
+File Path: `/py2mappr/_builder/build_dataset.py`
+File Content: 
+```
+from pathlib import Path
+import pandas as pd
+from typing import Any, List, Dict, TypedDict
+
+from py2mappr._core.config import AttributeConfig, default_attr_config
+from py2mappr._builder._utils import md_to_html
+import copy
+
+
+class Datapoint(TypedDict):
+    id: str
+    attr: Dict[str, Any]
+
+
+class Dataset(TypedDict):
+    attrDescriptors: List[AttributeConfig]
+    datapoints: List[Datapoint]
+
+
+def build_attr_descriptor(column: str, override: pd.Series) -> AttributeConfig:
+    """
+    Build an attribute descriptor from a column in a dataframe.
+
+    Parameters
+    ----------
+    column : str. The column name in the dataframe.
+
+    override : pd.Series. The series containing the override values for the
+    attribute descriptor.
+
+    Returns
+    -------
+    AttributeConfig. The attribute descriptor.
+    """
+    attrs: AttributeConfig = dict(copy.deepcopy(default_attr_config))
+
+    # if title doesnt exist. copy from id.
+    attrs["id"] = column
+    attrs["title"] = attrs["id"] if attrs["title"] == "" else attrs["title"]
+
+    # use if override exists
+    if override is not None:
+        for key, val in override.items():
+            if key in attrs:
+                attrs[key] = val
+
+    return attrs
+
+
+def build_attrDescriptors(
+    data: Dict[str, AttributeConfig], attrs_df: pd.DataFrame = None
+) -> List[AttributeConfig]:
+    """
+    Build the attribute descriptors for the dataset.
+
+    Parameters
+    ----------
+    data : Dict[str, AttributeConfig]. The attribute descriptors for the
+    dataset.
+
+    attrs_df : pd.DataFrame, optional. The dataframe containing the attribute
+    descriptors, by default None
+
+    Returns
+    -------
+    List[AttributeConfig] The attribute descriptors for the dataset.
+    """
+    attrDescriptors = [
+        build_attr_descriptor(key, attrs_df[key]) for key in data.keys()
+    ]
+
+    return attrDescriptors
+
+"""
+Generate the `__build_datapoint` function for processing data from a DataFrame into a structured format.
+
+### Requirements:
+- **Input**: 
+  - `dp`: A pandas Series representing a single datapoint.
+  - `dpAttribTypes`: A dictionary mapping attribute names to their types.
+  - `dpRenderTypes`: A dictionary mapping attribute names to their render types.
+  - `exclude_md_attrs`: A list of attribute names to exclude from markdown to HTML conversion.
+
+- **Output**: 
+  - A dictionary with an "id" field and an "attr" field.
+    - The "id" field should be the value of the "id" column from the Series.
+    - The "attr" field should be a dictionary where each key is an attribute from the Series. 
+
+- **Processing**:
+  - Convert attribute values based on their types as follows:
+    - "liststring": Convert the string to a list if it contains '|' or leave as a single-item list.
+    - "float", "integer", "year": Retain the value and set NaN to an empty string.
+    - "string": If the render type is "text" and the attribute is not in `exclude_md_attrs`, convert markdown to HTML using `md_to_html`.
+
+"""
+$PlaceHolder$
+
+def build_datapoints(
+    df_datapoints: pd.DataFrame,
+    dpAttribTypes: Dict[str, str],
+    dpRenderTypes: Dict[str, str],
+    exclude_md_attrs: List[str] = [],
+) -> List[Dict[str, Any]]:
+    """
+    Build the datapoints for the dataset.
+
+    Parameters
+    ----------
+    df_datapoints : pd.DataFrame. The dataframe containing the datapoints.
+
+    dpAttribTypes : Dict[str, str]. The attribute types for the datapoints.
+
+    dpRenderTypes : Dict[str, str]. The render types for the datapoints.
+    Returns
+    -------
+    List[Dict[str, Any]] The datapoints for the dataset.
+    """
+    datapoints = [
+        __build_datapoint(dp, dpAttribTypes, dpRenderTypes, exclude_md_attrs)
+        for _, dp in df_datapoints.iterrows()
+    ]
+
+    return datapoints
+
+```
+
+
+def __build_datapoint(
+    dp: pd.Series,
+    dpAttribTypes: Dict[str, str],
+    dpRenderTypes: Dict[str, str],
+    exclude_md_attrs: List[str] = [],
+) -> Dict[str, Any]:
+    dp_dict: Dict[str, Any] = {}
+    dp_dict["id"] = dp["id"]
+    dp_dict["attr"] = {}
+    for key in dp.keys():
+        if key != "id":
+            val = dp[key]
+            if dpAttribTypes[key] == "liststring":
+                val = val.split("|") if type(val) == str else [val]
+            if dpAttribTypes[key] in ["float", "integer", "year"]:
+                val = "" if pd.isna(val) else val
+            if (
+                dpAttribTypes[key] == "string"
+                and dpRenderTypes[key] == "text"
+                and key not in exclude_md_attrs
+            ):
+                val = md_to_html(val)
+            dp_dict["attr"][key] = val
+
+    return dp_dict
