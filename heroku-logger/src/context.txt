@@ -2,6 +2,7 @@
 # FILE TO BE UPDATED
 
 File Path: `/src/index.js`
+File Content: 
 ```
 
 const Logfmt = require('logfmt')
